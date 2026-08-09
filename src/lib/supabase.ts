@@ -11,7 +11,8 @@ export const SUPABASE_PUBLISHABLE_KEY =
   import.meta.env['VITE_SUPABASE_PUBLISHABLE_KEY'] ??
   "sb_publishable_NJa7gfPEeWIgxZTiAfmdxA_wEKxo846";
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const supabase = createClient<any>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
