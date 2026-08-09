@@ -25,7 +25,7 @@ export function MessagesManager() {
 
   const markRead = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("messages").update({ read: true }).eq("id", id);
+      const { error } = await supabase.from("messages").update({ read: true } as never).eq("id", id);
       if (error) throw error;
     },
     onSuccess: invalidate,

@@ -40,7 +40,7 @@ export function Contact() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.from("messages").insert(parsed.data);
+    const { error } = await supabase.from("messages").insert(parsed.data as never);
     setLoading(false);
     if (error) {
       toast.error(t("contact.error"));

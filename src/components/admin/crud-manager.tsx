@@ -89,10 +89,10 @@ export function CrudManager({
   const save = useMutation({
     mutationFn: async (payload: Record<string, unknown>) => {
       if (editing) {
-        const { error } = await supabase.from(table).update(payload).eq("id", editing.id);
+        const { error } = await supabase.from(table).update(payload as never).eq("id", editing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from(table).insert(payload);
+        const { error } = await supabase.from(table).insert(payload as never);
         if (error) throw error;
       }
     },

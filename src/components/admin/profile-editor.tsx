@@ -51,10 +51,10 @@ export function ProfileEditor() {
         FIELDS.map((f) => [f.name, values[f.name] === "" ? null : values[f.name]]),
       );
       if (data?.id) {
-        const { error } = await supabase.from("profile").update(payload).eq("id", data.id);
+        const { error } = await supabase.from("profile").update(payload as never).eq("id", data.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("profile").insert(payload);
+        const { error } = await supabase.from("profile").insert(payload as never);
         if (error) throw error;
       }
     },
