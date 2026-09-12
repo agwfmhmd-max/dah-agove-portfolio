@@ -80,11 +80,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Mohamed Dah Agove | Banque & Assurance Student & Software Developer" },
+      { title: "MauriScore — ذكاء ائتماني لموريتانيا" },
       {
         name: "description",
-        content:
-          "Mohamed Dah Agove – Third-year Banque et Assurance student at ISCAE and Software Developer building digital solutions in finance, education and enterprise management.",
+        content: "نموذج تجريبي لمنصة MauriScore لتقييم الجدارة الائتمانية بموافقة العميل.",
       },
       { name: "author", content: "Mohamed Dah Agove" },
       { name: "theme-color", content: "#0f1b2d" },
@@ -110,7 +109,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="ar" dir="rtl">
       <head>
         <HeadContent />
       </head>
@@ -137,4 +136,3 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
-
