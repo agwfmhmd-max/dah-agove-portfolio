@@ -1581,3 +1581,137 @@ button:disabled {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* Bilingual polish and responsive refinements */
+.mauri-app[dir="ltr"] {
+  font-family: var(--font-sans);
+}
+.mauri-app[dir="ltr"] .mauri-title,
+.mauri-app[dir="ltr"] .mauri-panel h2,
+.mauri-app[dir="ltr"] .mauri-brand-name {
+  letter-spacing: -0.025em;
+}
+.mauri-app[dir="ltr"] .mauri-stat-value,
+.mauri-app[dir="ltr"] .mauri-amount,
+.mauri-app[dir="ltr"] .mauri-table-score,
+.mauri-app[dir="ltr"] .mauri-customer-id {
+  text-align: left;
+}
+.mauri-language-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 68px;
+  height: 31px;
+  padding: 0 10px;
+  border: 1px solid #d9e1ee;
+  border-radius: 8px;
+  background: #f8faff;
+  color: #4660a1;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.16s ease;
+}
+.mauri-language-toggle:hover {
+  border-color: #abbde4;
+  background: #eef3ff;
+  transform: translateY(-1px);
+}
+.mauri-stat-card,
+.mauri-panel {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+.mauri-stat-card:hover,
+.mauri-panel:hover {
+  border-color: rgba(70, 99, 160, 0.18);
+  box-shadow: var(--shadow-lift);
+}
+.mauri-customer-panel:hover,
+.mauri-calculator-panel:hover {
+  transform: none;
+}
+.mauri-table tbody tr {
+  cursor: pointer;
+}
+.mauri-table tbody tr:focus-within {
+  outline: 2px solid #aabbe8;
+  outline-offset: -2px;
+}
+
+@media (max-width: 600px) {
+  .mauri-topbar {
+    padding-inline: 12px;
+  }
+  .mauri-breadcrumb {
+    max-width: 145px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .mauri-topbar > .flex:last-child {
+    gap: 5px;
+  }
+  .mauri-language-toggle {
+    min-width: 54px;
+    height: 30px;
+    padding-inline: 7px;
+    font-size: 9px;
+  }
+  .mauri-topbar .mauri-icon-button {
+    width: 29px;
+    height: 29px;
+  }
+  .mauri-welcome-row {
+    margin-bottom: 20px;
+  }
+  .mauri-title {
+    max-width: 320px;
+    line-height: 1.35;
+  }
+  .mauri-panel-heading {
+    gap: 10px;
+  }
+  .mauri-panel h2 {
+    line-height: 1.45;
+  }
+  .mauri-table-footer {
+    gap: 12px;
+  }
+  .mauri-table-footer .mauri-link-button {
+    text-align: end;
+  }
+}
+
+@media (max-width: 390px) {
+  .mauri-topbar-status,
+  .mauri-topbar .mauri-icon-button:first-of-type {
+    display: none;
+  }
+  .mauri-content {
+    padding-inline: 12px;
+  }
+  .mauri-stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .mauri-stat-card {
+    min-height: 124px;
+  }
+  .mauri-stat-value {
+    font-size: 19px;
+  }
+  .mauri-stat-label {
+    font-size: 9px;
+  }
+  .mauri-welcome-row .mauri-secondary-button,
+  .mauri-welcome-row .mauri-primary-button {
+    padding-inline: 9px;
+    font-size: 10px;
+  }
+}
