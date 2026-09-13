@@ -351,6 +351,8 @@ function MauriScorePrototype() {
   const [showCalculator, setShowCalculator] = useState(false);
   const [calculated, setCalculated] = useState(false);
   const [consent, setConsent] = useState(true);
+  const [notice, setNotice] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusTone | "all">("all");
   const [form, setForm] = useState({
     income: 18000,
     obligations: 4200,
@@ -377,13 +379,66 @@ function MauriScorePrototype() {
     return labels[label] ?? label;
   };
 
+  function showNotice(message: string) {
+    setNotice(message);
+    window.setTimeout(() => setNotice(""), 2800);
+  }
+
+  function handleNavClick(label: string) {
+    setActiveNav(label);
+    setSidebarOpen(false);
+    const targets: Record<string, string> = {
+      "نظرة عامة": "overview",
+      "طلبات الائتمان": "credit-requests",
+      العملاء: "credit-requests",
+      "تحليل المخاطر": "portfolio-insight",
+      "قواعد التقييم": "score-calculator",
+      "سجل الموافقات": "how-it-works",
+      "إعدادات المؤسسة": "overview",
+    };
+    document.getElementById(targets[label] ?? "overview")?.scrollIntoView({ behavior: "smooth" });
+    if (label === "قواعد التقييم") setShowCalculator(true);
+    if (label === "إعدادات المؤسسة")
+      showNotice(
+        isFrench
+          ? "Les paramètres seront disponibles dans la prochaine version."
+          : "إعدادات المؤسسة ستتوفر في النسخة القادمة.",
+      );
+  }
+
+  function exportRequests() {
+    const headers = ["ID", "Customer", "Product", "Amount", "Score", "Status"];
+    const rows = customers.map((customer) => [
+      customer.id,
+      customer.name,
+      isFrench ? productInFrench(customer.id) : customer.product,
+      customer.amount,
+      customer.score,
+      isFrench ? statusInFrench(customer.label) : customer.label,
+    ]);
+    const csv = [headers, ...rows]
+      .map((row) => row.map((value) => `"${value}"`).join(","))
+      .join("\n");
+    const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "mauriscore-credit-requests.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+    showNotice(isFrench ? "Export CSV téléchargé." : "تم تنزيل ملف CSV بنجاح.");
+  }
+
   const filteredCustomers = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    if (!normalized) return customers;
-    return customers.filter((customer) =>
-      `${customer.name} ${customer.id} ${customer.phone}`.toLowerCase().includes(normalized),
-    );
-  }, [query]);
+    return customers.filter((customer) => {
+      const matchesStatus = statusFilter === "all" || customer.tone === statusFilter;
+      const matchesQuery =
+        !normalized ||
+        `${customer.name} ${customer.id} ${customer.phone}`.toLowerCase().includes(normalized);
+      return matchesStatus && matchesQuery;
+    });
+  }, [query, statusFilter]);
 
   const selectedCustomer = customers.find((customer) => customer.id === selectedId) ?? customers[0];
 
@@ -470,10 +525,7 @@ function MauriScorePrototype() {
               <button
                 key={item.label}
                 className={`mauri-nav-item ${activeNav === item.label ? "active" : ""}`}
-                onClick={() => {
-                  setActiveNav(item.label);
-                  setSidebarOpen(false);
-                }}
+                onClick={() => handleNavClick(item.label)}
               >
                 <Icon className="size-[18px]" strokeWidth={1.8} />
                 <span>{displayNav(item.label)}</span>
@@ -491,7 +543,7 @@ function MauriScorePrototype() {
               <button
                 key={item.label}
                 className="mauri-nav-item"
-                onClick={() => setActiveNav(item.label)}
+                onClick={() => handleNavClick(item.label)}
               >
                 <Icon className="size-[18px]" strokeWidth={1.8} />
                 <span>{displayNav(item.label)}</span>
@@ -556,10 +608,26 @@ function MauriScorePrototype() {
             >
               {copy.french}
             </button>
-            <button className="mauri-icon-button" aria-label={copy.help}>
+            <button
+              className="mauri-icon-button"
+              aria-label={copy.help}
+              onClick={() =>
+                showNotice(
+                  isFrench
+                    ? "Use the language switcher and the calculator to explore the prototype."
+                    : "استخدم مفتاح اللغة والحاسبة لاستكشاف النموذج.",
+                )
+              }
+            >
               <CircleHelp className="size-[18px]" />
             </button>
-            <button className="mauri-icon-button relative" aria-label={copy.notifications}>
+            <button
+              className="mauri-icon-button relative"
+              aria-label={copy.notifications}
+              onClick={() =>
+                showNotice(isFrench ? "No new notifications." : "لا توجد إشعارات جديدة.")
+              }
+            >
               <Bell className="size-[18px]" />
               <span className="mauri-notification-dot" />
             </button>
@@ -567,7 +635,12 @@ function MauriScorePrototype() {
         </header>
 
         <div className="mauri-content">
-          <section className="mauri-welcome-row">
+          {notice && (
+            <div className="mauri-notice" role="status">
+              {notice}
+            </div>
+          )}
+          <section id="overview" className="mauri-welcome-row">
             <div>
               <div className="mauri-eyebrow">
                 <span className="mauri-eyebrow-line" />{" "}
@@ -629,14 +702,21 @@ function MauriScorePrototype() {
             />
           </section>
 
-          <section className="mauri-grid mauri-grid-top">
+          <section id="portfolio" className="mauri-grid mauri-grid-top">
             <div className="mauri-panel mauri-score-panel">
               <div className="mauri-panel-heading">
                 <div>
                   <div className="mauri-section-kicker">{copy.portfolioSummary}</div>
                   <h2>{copy.scoreDistribution}</h2>
                 </div>
-                <button className="mauri-filter-button">
+                <button
+                  className="mauri-filter-button"
+                  onClick={() =>
+                    showNotice(
+                      isFrench ? "The chart shows the last 30 days." : "المخطط يعرض آخر 30 يوماً.",
+                    )
+                  }
+                >
                   <span>{copy.last30}</span>
                   <ChevronDown className="size-3.5" />
                 </button>
@@ -709,7 +789,7 @@ function MauriScorePrototype() {
                 </div>
                 <button
                   className="mauri-link-button"
-                  onClick={() => setActiveNav("طلبات الائتمان")}
+                  onClick={() => handleNavClick("طلبات الائتمان")}
                 >
                   {copy.viewAll} <ArrowLeft className="size-3.5" />
                 </button>
@@ -753,7 +833,7 @@ function MauriScorePrototype() {
             </div>
           </section>
 
-          <section className="mauri-panel mauri-customer-panel">
+          <section id="credit-requests" className="mauri-panel mauri-customer-panel">
             <div className="mauri-panel-heading mauri-customer-heading">
               <div>
                 <div className="mauri-section-kicker">{copy.requestManagement}</div>
@@ -774,10 +854,27 @@ function MauriScorePrototype() {
                 <button
                   className="mauri-icon-button table-filter"
                   aria-label={isFrench ? "Filtrer les demandes" : "تصفية الطلبات"}
+                  onClick={() => {
+                    const next =
+                      statusFilter === "all"
+                        ? "green"
+                        : statusFilter === "green"
+                          ? "blue"
+                          : statusFilter === "blue"
+                            ? "amber"
+                            : "all";
+                    setStatusFilter(next);
+                    showNotice(
+                      isFrench
+                        ? `Filter: ${next === "all" ? "all requests" : next}`
+                        : `التصفية: ${next === "all" ? "كل الطلبات" : next === "green" ? "ممتاز" : next === "blue" ? "جيد" : "مراجعة"}`,
+                    );
+                  }}
+                  title={isFrench ? "Cycle status filter" : "تغيير تصفية الحالة"}
                 >
                   <SlidersHorizontal className="size-4" />
                 </button>
-                <button className="mauri-export-button">
+                <button className="mauri-export-button" onClick={exportRequests}>
                   <Download className="size-3.5" /> {copy.export}
                 </button>
               </div>
@@ -843,7 +940,19 @@ function MauriScorePrototype() {
                         </span>
                       </td>
                       <td>
-                        <button className="mauri-row-action" aria-label={`عرض ${customer.name}`}>
+                        <button
+                          className="mauri-row-action"
+                          aria-label={`عرض ${customer.name}`}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setSelectedId(customer.id);
+                            showNotice(
+                              isFrench
+                                ? `${customer.name} — score ${customer.score}`
+                                : `${customer.name} — الدرجة ${customer.score}`,
+                            );
+                          }}
+                        >
                           <Eye className="size-4" />
                         </button>
                       </td>
@@ -861,14 +970,17 @@ function MauriScorePrototype() {
                   ? `Affichage de ${filteredCustomers.length} sur 24 demandes`
                   : `عرض ${filteredCustomers.length} من 24 طلب`}
               </span>
-              <button className="mauri-link-button">
+              <button
+                className="mauri-link-button"
+                onClick={() => handleNavClick("طلبات الائتمان")}
+              >
                 {copy.openManagement} <ArrowLeft className="size-3.5" />
               </button>
             </div>
           </section>
 
           <section className="mauri-bottom-grid">
-            <div className="mauri-panel mauri-how-panel">
+            <div id="how-it-works" className="mauri-panel mauri-how-panel">
               <div className="mauri-panel-heading">
                 <div>
                   <div className="mauri-section-kicker">{copy.howItWorks}</div>
@@ -914,7 +1026,7 @@ function MauriScorePrototype() {
               </div>
             </div>
 
-            <div className="mauri-panel mauri-insight-panel">
+            <div id="portfolio-insight" className="mauri-panel mauri-insight-panel">
               <div className="mauri-panel-heading">
                 <div>
                   <div className="mauri-section-kicker">
@@ -945,7 +1057,7 @@ function MauriScorePrototype() {
                   <span style={{ width: "31%" }} />
                 </div>
               </div>
-              <button className="mauri-text-button" onClick={() => setActiveNav("تحليل المخاطر")}>
+              <button className="mauri-text-button" onClick={() => handleNavClick("تحليل المخاطر")}>
                 {copy.exploreAnalysis} <ArrowLeft className="size-3.5" />
               </button>
             </div>

@@ -1715,3 +1715,50 @@ button:disabled {
     font-size: 10px;
   }
 }
+
+.mauri-notice {
+  position: sticky;
+  z-index: 20;
+  top: 12px;
+  width: fit-content;
+  max-width: min(100%, 440px);
+  margin: -12px auto 14px;
+  padding: 10px 14px;
+  border: 1px solid #b8d6cf;
+  border-radius: 10px;
+  background: #effaf6;
+  color: #267d6b;
+  box-shadow: 0 8px 24px rgba(34, 105, 92, 0.12);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}
+.mauri-filter-button,
+.mauri-export-button,
+.mauri-link-button,
+.mauri-text-button,
+.mauri-row-action {
+  transition:
+    transform 0.16s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+.mauri-filter-button:active,
+.mauri-export-button:active,
+.mauri-link-button:active,
+.mauri-text-button:active,
+.mauri-row-action:active {
+  transform: scale(0.96);
+}
+@media (max-width: 860px) {
+  .mauri-sidebar {
+    width: min(86vw, 310px);
+  }
+}
+@media (max-width: 600px) {
+  .mauri-notice {
+    top: 8px;
+    margin: -6px auto 12px;
+    font-size: 10px;
+  }
+}
